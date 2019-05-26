@@ -25,6 +25,10 @@
 				<li class="nav-item">
 					<a class="nav-link {% if document_create_page %}active{% endif %}" href="{{ url_for('documents.create_document') }}">Create document</a>
 				</li>
+				<li class="nav-item">
+					<a class="nav-link" href="{{ url_for('documents.generate_documents') }}">Generate documents</a>
+				</li>
+
 			{% endif %}
 
 		</ul>
@@ -46,6 +50,18 @@
 			<div class="col-sm-12">
 				<div class="text-info text-center">
 					<h1>{% block content_title %}{% endblock %}</h1>
+					{% with messages = get_flashed_messages() %}
+
+						{% if messages %}
+								<ul class='list-inline'>
+									{% for message in messages %}
+										<li>{{ message }}</li>
+										<li>{{ message }}</li>
+									{% endfor %}
+								</ul>
+						{% endif %}
+
+					{% endwith %}
 				</div>
 			</div>
 		</div>

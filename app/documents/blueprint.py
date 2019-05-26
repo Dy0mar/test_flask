@@ -1,12 +1,16 @@
 # -*- coding: utf-8 -*-
+import datetime
+
 from flask import (
-    Blueprint, render_template, request, redirect, url_for
-)
+    Blueprint, render_template, request, redirect, url_for,
+    flash, render_template_string)
 from flask_login import current_user, login_required
+from sqlalchemy.sql.functions import current_timestamp
 
 from app import db
 from app.documents.forms import DocumentForm
 from app.models import Document, Source
+from flask import current_app as app
 
 documents = Blueprint('documents', __name__, template_folder='templates')
 
@@ -16,7 +20,8 @@ def save_db(o):
         db.session.add(o)
         db.session.commit()
     except Exception as e:
-        print(e)
+        return False
+    return True
 
 
 @documents.route('/', methods=['POST', 'GET'])
@@ -61,10 +66,34 @@ def create_document():
             title=title, text=text, created=created, author=current_user,
             source=source
         )
-        save_db(document)
-        return redirect(url_for('documents.index'))
+        saved = save_db(document)
+        if saved:
+            return redirect(url_for('documents.index'))
+        else:
+            flash('Документ не был создан')
 
     return render_template(
         'documents/create.html', document_create_page=True, form=form
     )
 
+
+@documents.route('/generate_documents/',)
+@login_required
+def generate_documents():
+    title = 'Document {}'
+    text = render_template_string('documents/generate_text/text.html')
+    created = current_timestamp()
+    url = '{}{}'
+
+    for i in range(1, app.config['GENERATE_COUNT_DOCUMENTS']):
+        tmp_url = url.format(format(request.base_url), i)
+        tmp_text = '{} {}'.format(text, i)
+        source = Source(name='Source {}'.format(i), url=tmp_url)
+        save_db(source)
+
+        document = Document(
+            title=title.format(i), text=tmp_text, created=created,
+            author=current_user, source=source
+        )
+        save_db(document)
+    return redirect(url_for('documents.index'))
