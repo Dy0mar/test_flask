@@ -7,7 +7,7 @@
 {% block content %}
 	{% for document in pages.items %}
 		<p>
-			<a href="#">{{ document.title }}</a>
+			<a href="{{ url_for('documents.edit_document', pk=document.id) }}">{{ document.title }}</a>
 		</p>
 	{% endfor %}
 

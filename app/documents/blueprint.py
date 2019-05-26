@@ -1,13 +1,15 @@
 # -*- coding: utf-8 -*-
+import datetime
+
 from flask import (
-    Blueprint, render_template, request, redirect, url_for, flash
-)
+    Blueprint, render_template, request, redirect, url_for, flash,
+    abort)
 from flask_login import current_user, login_required
 from sqlalchemy.sql.functions import current_timestamp
 
 from app import db
-from app.documents.forms import DocumentForm
-from app.models import Document, Source
+from app.documents.forms import DocumentForm, DocumentModelForm
+from app.models import Document, Source, slugify
 from flask import current_app as app
 
 documents = Blueprint('documents', __name__, template_folder='templates')
@@ -75,6 +77,35 @@ def create_document():
     )
 
 
+@documents.route('/edit/<int:pk>', methods=['POST', 'GET'])
+@login_required
+def edit_document(pk):
+    document = Document.query.filter_by(id=pk).first()
+    time_edit_limit = document.created_at + datetime.timedelta(hours=1)
+
+    if not current_user.has_role('admin'):
+        if time_edit_limit <= datetime.datetime.now():
+            flash('Time is up')
+            return redirect(url_for('documents.index'))
+
+    if request.method == 'POST':
+        cnt = document.editor_count or 0
+        cnt += 1
+        document.editor_count = cnt
+        document.updated_at = current_timestamp()
+        db.session.add(document)
+        db.session.commit()
+
+        form = DocumentModelForm(formdata=request.form, obj=document)
+        form.populate_obj(document)
+        db.session.commit()
+        return redirect(url_for('documents.index'))
+
+    form = DocumentModelForm(obj=document)
+    return render_template('documents/edit.html', document_edit_page=True,
+                           document=document, form=form)
+
+
 @documents.route('/generate_documents/',)
 @login_required
 def generate_documents():
@@ -91,7 +122,8 @@ def generate_documents():
 
         document = Document(
             title=title.format(i), text=tmp_text, created=created,
-            author=current_user, source=source
+            author=current_user, source=source,
+            url=slugify(title.format(i))
         )
         save_db(document)
     return redirect(url_for('documents.index'))

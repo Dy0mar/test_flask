@@ -52,7 +52,6 @@ class User(db.Model, UserMixin):
     email = db.Column(db.String(255), unique=True)
     password = db.Column(db.String(255))
     active = db.Column(db.Boolean(), default=True)
-    # confirmed_at = db.Column(db.DateTime()) del it
     documents = db.relationship('Document', backref='author', lazy='dynamic')
     roles = db.relationship('Role', secondary=roles_users,
                             backref=db.backref('users', lazy='dynamic'))
