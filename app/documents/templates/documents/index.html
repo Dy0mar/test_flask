@@ -5,9 +5,29 @@
 {% endblock %}
 
 {% block content %}
-	{% for document in docs %}
+	{% for document in pages.items %}
 		<p>
 			<a href="#">{{ document.title }}</a>
 		</p>
 	{% endfor %}
+
+	<nav>
+		<ul class="pagination">
+			<li class="page-item {% if not pages.has_prev %}disabled{% endif %}">
+				<a class="page-link" href="./?page={{ pages.prev_num }}" aria-label="Previous">&laquo;</a>
+			</li>
+
+				{% for page in pages.iter_pages() %}
+					<li class="page-item {% if page == pages.page %}active{% endif %}">
+						<a class="page-link" href="./?page={{ page }}">{{ page }}</a> <span class="sr-only">(current)</span>
+					</li>
+				{% endfor %}
+
+			<li class="page-item {% if not pages.has_next %}disabled{% endif %}">
+				<a class="page-link" href="./?page={{ pages.next_num }}" aria-label="Next">&raquo;</a>
+			</li>
+
+		</ul>
+	</nav>
+
 {% endblock %}

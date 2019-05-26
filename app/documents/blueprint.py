@@ -36,16 +36,16 @@ def index():
     else:
         page = 1
 
-    docs = Document.query.all()
+    docs = Document.query.order_by(Document.id.asc())
 
     if q:
         docs = Document.query.filter(
             Document.title.contains(q) | Document.text.contains(q)
         )
-    pages = []
+    pages = docs.paginate(page=page, per_page=5)
 
     return render_template(
-        'documents/index.html', docs=docs, pages=pages, documents_page=True)
+        'documents/index.html', pages=pages, documents_page=True)
 
 
 @documents.route('/create/', methods=['POST', 'GET'])
