@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
-import datetime
-
 from flask import (
-    Blueprint, render_template, request, redirect, url_for,
-    flash, render_template_string)
+    Blueprint, render_template, request, redirect, url_for, flash
+)
 from flask_login import current_user, login_required
 from sqlalchemy.sql.functions import current_timestamp
 
@@ -24,7 +22,7 @@ def save_db(o):
     return True
 
 
-@documents.route('/', methods=['POST', 'GET'])
+@documents.route('/')
 @login_required
 def index():
     q = request.args.get('q')
