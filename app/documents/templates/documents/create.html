@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block content_title %}
+	Create new document
+{% endblock %}
+
+{% block content %}
+		<div class="col-md-6">
+			<form action="{{ url_for('documents.create_document') }}" method="post">
+				{% for field in form %}
+
+					<div class="form-group row">
+						{{ field.label }}
+
+						{% if field.errors %}&nbsp;
+							<span class="text-danger">
+								{% if field.errors %}
+									{% for error in field.errors %}
+										{{ error }},
+									{% endfor %}
+								{% endif %}
+							</span>
+						{% endif %}
+
+						{{ field(class_="form-control") }}
+					</div>
+				{% endfor %}
+				<div class="float-right">
+					<button type="submit" class="btn btn-success">Create</button>
+				</div>
+			</form>
+
+		</div>
+
+
+{% endblock %}
