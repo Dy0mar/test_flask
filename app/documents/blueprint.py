@@ -81,7 +81,7 @@ def create_document():
 @login_required
 def generate_documents():
     title = 'Document {}'
-    text = render_template_string('documents/generate_text/text.html')
+    text = render_template('documents/generate_text/text.html')
     created = current_timestamp()
     url = '{}{}'
 
